@@ -81,3 +81,50 @@ Desarrollar un sistema de comercio electrónico que permita digitalizar y optimi
 - No gestiona logística de envíos externos.
 - No integra pasarelas de pago internacionales en la primera versión del sistema.
 - No reemplaza completamente la atención presencial del negocio.
+
+
+## 6. Actores del sistema
+
+### 6.1 Identificación de actores
+
+Los actores identificados para el sistema **Paulito Shoes Store** son:
+
+- Cliente
+- Administrador del sistema
+
+---
+
+### Cliente
+
+El cliente es cualquier persona que accede al sistema con el objetivo de consultar información sobre los productos disponibles y realizar compras en línea.
+
+**Acciones que puede realizar:**
+- Visualizar el catálogo de productos disponibles.
+- Consultar información detallada de un producto.
+- Agregar productos al carrito de compras.
+- Realizar pedidos a través del sistema.
+- Recibir comprobantes digitales de compra.
+- Consultar el estado de sus pedidos.
+
+**Acciones que NO puede realizar:**
+- Gestionar productos o inventario.
+- Modificar precios.
+- Acceder a información administrativa del negocio.
+- Gestionar pedidos de otros clientes.
+
+---
+
+### Administrador del sistema
+
+El administrador del sistema es el usuario responsable de la gestión operativa del e-commerce y del control de la información del negocio.
+
+**Acciones que puede realizar:**
+- Gestionar productos (crear, editar y eliminar).
+- Actualizar precios, tallas y stock de los productos.
+- Revisar y gestionar los pedidos realizados por los clientes.
+- Administrar la información básica del sistema.
+- Consultar reportes básicos de ventas.
+
+**Acciones que NO puede realizar:**
+- Realizar compras como cliente dentro del sistema.
+- Acceder a funcionalidades fuera del alcance definido del sistema.
