@@ -128,3 +128,6 @@ El administrador del sistema es el usuario responsable de la gestión operativa 
 **Acciones que NO puede realizar:**
 - Realizar compras como cliente dentro del sistema.
 - Acceder a funcionalidades fuera del alcance definido del sistema.
+Con tinuamos con el sistema de fichacho para todas las tareas del paulito shoes store system
+
+Si ves esto es un clip para que le des like y te suscribas :D  
