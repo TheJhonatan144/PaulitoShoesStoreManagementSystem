@@ -22,6 +22,8 @@ Ver detalle completo en:
 Ver detalle completo en:
 [SESION-05-carrito-checkout.md](./SESION-05-carrito-checkout.md)
 ### 1.3 Pedidos
+Ver detalle completo en:
+[SESION-05-pedidos.md](./SESION-05-pedidos.md)
 ### 1.4 Usuarios y roles
 ### 1.5 Inventario y compras
 ### 1.6 Soporte
