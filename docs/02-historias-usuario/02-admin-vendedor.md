@@ -1,6 +1,19 @@
 # Fase 2 – Historias de Usuario
 ## Módulo: Admin / Vendedor
 
+### Nota sobre actores del sistema
+
+En la Fase 1 del proyecto se definió como actor principal del sistema al "Administrador del sistema".  
+
+Durante la Fase 2, este actor se desdobla conceptualmente en dos roles operativos:
+
+- **Administrador**: encargado de la configuración del sistema, gestión de catálogo, control de inventario crítico, aprobación de devoluciones y análisis de reportes.
+- **Vendedor**: encargado de la operación diaria, gestión de pedidos, preparación, despacho y atención básica.
+
+En el contexto actual del negocio familiar, una misma persona puede desempeñar ambos roles.  
+Sin embargo, el sistema mantiene la separación de responsabilidades para permitir escalabilidad futura.
+
+
 ### 1. Acceso y roles
 
 #### HU-AV-01 – Iniciar sesión (admin/vendedor)

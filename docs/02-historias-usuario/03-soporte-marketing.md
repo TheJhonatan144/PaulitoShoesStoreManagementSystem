@@ -6,7 +6,7 @@
 #### HU-SM-01 - Registrar ticket de soporte
 Como cliente,
 quiero registrar una solicitud de soporte,
-para escribir ayuda cuando tenga un problema con mi compra o pedido.
+para recibir ayuda cuando tenga un problema
 [MVP]
 
 ---
@@ -14,14 +14,14 @@ para escribir ayuda cuando tenga un problema con mi compra o pedido.
 #### HU-SM-02 - Ver estado de mi solicitud de soporte
 Como cliente,
 quiero ver el estado de mi solicitud de soporte,
-para saber si ya está siendo atendido y cuál es el avance.
+para saber si ya está siendo atendida y cuál es el avance.
 [Post-MVP]
 
 ---
 
 #### HU-SM-03 - Ver listado de tickets de soporte
 Como administrador o vendedor,
-quiero ver el listado de solicitud de soporte,
+quiero ver el listado de solicitudes de soporte,
 para atenderlas y dar seguimiento de forma organizada.
 [MVP]
 
@@ -30,7 +30,7 @@ para atenderlas y dar seguimiento de forma organizada.
 #### HU-SM-04 - Ver detalle de un ticket de soporte
 Como administrador o vendedor,
 quiero ver el detalle de una solicitud de soporte,
-para encontrar el caso y responder correctamente.
+para entender el caso y responder correctamente.
 [MVP]
 
 ---
@@ -46,7 +46,7 @@ para ayudar al cliente y resolver su inconveniente.
 #### HU-SM-06 - Cambiar estado del ticket de soporte
 Como administrador o vendedor,
 quiero actualizar el estado del ticket (nuevo, en proceso, resuelto, cerrado),
-para controlar el avance y cierra de cada caso.
+para controlar el avance y cierre de cada caso.
 [MVP]
 
 ---

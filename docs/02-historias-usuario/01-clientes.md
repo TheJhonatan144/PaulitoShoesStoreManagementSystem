@@ -192,3 +192,12 @@ Como cliente autenticado,
 quiero ver el detalle de un pedido específico,
 para conocer su estado y la información de la compra.
 [MVP]
+
+---
+
+### HU-CL-24 – Recibir comprobante digital de compra
+Como cliente autenticado,
+quiero recibir un comprobante digital de mi compra,
+para tener constancia formal del pedido realizado.
+[MVP]
+
