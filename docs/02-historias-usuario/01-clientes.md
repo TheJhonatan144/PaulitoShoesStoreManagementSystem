@@ -128,10 +128,10 @@ para elegir la forma que más me convenga al recibir mi compra.
 
 ---
 
-### HU-CL-16 – Reservar productos al iniciar checkout
+### HU-CL-16 – Reservar productos al confirmar pedido
 Como cliente autenticado,
-quiero que los productos de mi pedido queden reservados al iniciar el checkout,
-para asegurar su disponibilidad hasta que se entreguen a domicilio o los retire en tienda.
+quiero que el sistema reserve los productos de mi pedido al confirmar la compra,
+para asegurar su disponibilidad según el método de pago seleccionado.
 [MVP]
 
 
