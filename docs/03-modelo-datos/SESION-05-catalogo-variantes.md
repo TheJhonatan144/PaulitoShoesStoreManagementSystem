@@ -8,7 +8,7 @@ Tipo: Modelo Conceptual (sin Prisma / sin SQL)
 
 # 1. Contexto real del negocio
 
-Paulito Shoes Store trabaja principalmente con calzado nacional.    
+Paulito Shoes Store trabaja principalmente con calzado nacional.  
 Los productos no poseen códigos de fábrica confiables.
 
 La mercadería se compra por series de tallas:
@@ -17,7 +17,7 @@ La mercadería se compra por series de tallas:
 - Serie mediana: 27–32
 - Serie grande: 37–42
 
-Cada serie tiene un precio diferente.
+Cada serie tiene un precio diferente.  
 Todas las tallas dentro de una misma serie comparten el mismo precio.
 
 El color se ingresa manualmente como texto libre al momento de registrar la mercadería.
@@ -28,22 +28,53 @@ El color se ingresa manualmente como texto libre al momento de registrar la merc
 
 ---
 
-## 2.1 Producto (Modelo base)
+## 2.1 Marca
 
 ### Propósito
-Representa el modelo general del zapato.
+Representa la marca del producto.
+
+### Atributos MVP
+
+- id
+- nombre
+- estado (activa, inactiva)
+- fechaCreacion
+- fechaActualizacion
+
+---
+
+## 2.2 Categoria
+
+### Propósito
+Clasificar productos dentro del catálogo.
+
+### Atributos MVP
+
+- id
+- nombre
+- descripcion (opcional)
+- estado (activa, inactiva)
+- fechaCreacion
+- fechaActualizacion
+
+---
+
+## 2.3 Producto (Modelo base)
+
+### Propósito
+Representa el modelo general del zapato.  
 Agrupa variantes por talla y color.
 
 ### Atributos MVP
 
-- id (identificador interno del sistema)
-- nombre (nombre del modelo)
-- descripcion (descripción general del modelo)
-- marcaId (referencia a la marca)
-- categoriaId (referencia a la categoría principal)
+- id
+- nombre
+- descripcion
+- marcaId
+- categoriaId
 - grupoObjetivo (niño, niña, hombre, mujer, unisex)
 - estado (borrador, activo, archivado)
-- notaPrecioBase (nota opcional si el precio depende de series)
+- notaPrecioBase (opcional)
 - fechaCreacion
 - fechaActualizacion
 
@@ -57,7 +88,7 @@ Agrupa variantes por talla y color.
 
 ---
 
-## 2.2 VarianteProducto (Talla x Color)
+## 2.4 VarianteProducto (Talla x Color)
 
 ### Propósito
 Representa la unidad real vendible y controlada en inventario.
@@ -69,13 +100,13 @@ es una variante distinta.
 ### Atributos MVP
 
 - id
-- productoId (relación con Producto)
+- productoId
 - talla (numérica: 21, 22, 23… 42)
 - color (texto libre ingresado manualmente)
-- tipoSerie (pequena, mediana, grande)
-- precio (precio específico según la serie)
-- stockDisponible (cantidad disponible)
-- codigoInterno (SKU interno generado por el sistema)
+- tipoSerie (pequeña, mediana, grande)
+- precio
+- stockDisponible
+- codigoInterno
 - estado (activo, inactivo, descontinuado)
 - notaVariante (opcional)
 - fechaCreacion
@@ -84,10 +115,11 @@ es una variante distinta.
 ### Reglas de negocio
 
 - El stock vive aquí.
-- El precio vive aquí (porque depende de la serie).
+- El precio vive aquí.
 - Una variante es única por combinación:
   (productoId + talla + color)
 - Si stockDisponible = 0, no se puede comprar.
+- Si el precio cambia, no afecta pedidos anteriores (PedidoItem guarda snapshot).
 
 ---
 
@@ -117,24 +149,25 @@ Reglas:
 ✔ El precio depende de la serie, por eso vive en VarianteProducto.  
 ✔ El color es texto libre para facilitar la operación real del negocio.  
 ✔ Se crea código interno obligatorio.  
-✔ Se permite más de una unidad por variante (no es único por par).  
-✔ Si stockDisponible = 0 en una VarianteProducto, NO se permite comprar.  
-✔ El catálogo debe mostrar la variante como “Sin stock” y sugerir otras tallas disponibles del mismo Producto.  
-✔ El interés “Me interesa” se registra como único por cliente usando identificador de sesión (anonimo) o clienteId (si está autenticado).
+✔ Se permite más de una unidad por variante.  
+✔ Si stockDisponible = 0, no se permite comprar.  
+✔ El catálogo muestra variantes sin stock y sugiere otras tallas disponibles.  
+✔ El interés “Me interesa” requiere cliente autenticado.  
+✔ Cambios futuros de precio no afectan pedidos ya confirmados.  
 
 ---
 
 # 5. Relaciones Conceptuales
 
-Producto (1) —— (N) VarianteProducto  
-
 Marca (1) —— (N) Producto  
 
 Categoria (1) —— (N) Producto  
 
+Producto (1) —— (N) VarianteProducto  
+
 VarianteProducto (1) —— (N) InteresStock  
 
-Cliente (0..1) —— (N) InteresStock  
+Cliente (1) —— (N) InteresStock  
 
 Una VarianteProducto pertenece obligatoriamente a un Producto.
 
@@ -166,24 +199,19 @@ Esta señal se usa para medir demanda real y decidir reposición con proveedores
 ## 7.2 Entidad: InteresStock
 
 ### Propósito
+Registrar el interés único de un cliente autenticado en una VarianteProducto sin stock.
 
-Registrar el interés ÚNICO de un cliente (anónimo o autenticado) en una VarianteProducto sin stock.
-
-### Atributos (conceptual)
+### Atributos
 
 - id
 - varianteProductoId
-- identificadorSesion (para clientes anónimos)
-- clienteId (opcional, si está autenticado)
+- clienteId
 - fechaCreacion
 
 ### Reglas
 
 - Solo se permite crear si stockDisponible = 0.
-- Debe ser único por combinación:
-  (varianteProductoId + identificadorSesion)
-- Si el cliente está autenticado, se asegura unicidad por:
+- Interés único por combinación:
   (varianteProductoId + clienteId)
-- No requiere correo ni teléfono.
 - No afecta el stock.
 - Sirve únicamente como métrica de demanda.

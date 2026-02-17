@@ -11,11 +11,14 @@ Tipo: Modelo Conceptual (sin Prisma / sin SQL)
 Representar la venta formal registrada en el sistema.
 
 Un Pedido se crea cuando:
+
 - El ProcesoCompra es confirmado.
 - El stock ha sido validado.
 - Se han definido método de pago y tipo de entrega.
 
 El Pedido es el registro oficial de la transacción y base para inventario, cambios y facturación futura.
+
+Los datos de entrega y totales se almacenan como snapshot al momento de la confirmación.
 
 ---
 
@@ -26,13 +29,13 @@ El Pedido es el registro oficial de la transacción y base para inventario, camb
 ## 2.1 Pedido
 
 ### Propósito
-Representar una venta generada desde un ProcesoCompra.
+Representar una venta generada desde un ProcesoCompra confirmado.
 
 ### Atributos MVP
 
 - id
 - numeroPedido (código interno visible y único)
-- clienteId (opcional si fue compra anónima)
+- clienteId (obligatorio)
 - procesoCompraId
 - estado (
   pendientePago,
@@ -49,12 +52,24 @@ Representar una venta generada desde un ProcesoCompra.
 - total
 - metodoPago (contraEntrega, transferencia)
 - tipoEntrega (domicilio, retiroEnTienda)
-- ciudadEntrega (requerido si tipoEntrega = domicilio)
-- provinciaEntrega (requerido si tipoEntrega = domicilio)
+
+### Snapshot de entrega (copiados desde DireccionEntrega)
+
+- nombreCompletoEntrega
+- telefonoEntrega
+- provinciaEntrega
+- ciudadEntrega
+- direccionLinea1Entrega
+- direccionLinea2Entrega (opcional)
+- referenciaEntrega (opcional)
+
+### Control de pago
+
 - codigoTransferencia (opcional)
 - fechaReserva (opcional)
 - fechaPagoConfirmado (opcional)
 - fechaEntregado (opcional)
+
 - fechaCreacion
 - fechaActualizacion
 
@@ -64,16 +79,16 @@ Representar una venta generada desde un ProcesoCompra.
 
 1. numeroPedido debe ser único.
 
-2. Antes de crear o confirmar el Pedido:
+2. Antes de confirmar el Pedido:
    - Validar stock nuevamente.
 
-3. Contra entrega (solo aplica dentro de Quito):
+3. Contra entrega (solo Quito):
    - Al confirmar el pedido:
      - Se RESERVA el stock (se descuenta stockDisponible).
-     - Se crea un MovimientoInventario tipo reserva.
+     - Se crea MovimientoInventario tipo reserva.
      - El estado pasa a reservado o preparado.
    - Si el pedido se cancela o no se entrega:
-     - Se libera la reserva (MovimientoInventario tipo liberacionReserva).
+     - Se crea MovimientoInventario tipo liberacionReserva.
 
 4. Transferencia bancaria:
    - El stock se descuenta cuando el pago es confirmado.
@@ -82,11 +97,15 @@ Representar una venta generada desde un ProcesoCompra.
 
 5. Entregado:
    - Solo cambia el estado.
-   - El stock ya debió haber sido reservado o descontado.
+   - El stock ya debió estar reservado o descontado.
 
 6. No entregado:
    - Aplica cuando el cliente no recibe el pedido.
    - Se debe liberar el stock si estaba reservado.
+
+7. Al crear el Pedido:
+   - El ProcesoCompra pasa a estado confirmado.
+   - No puede reutilizarse.
 
 ---
 
@@ -141,6 +160,10 @@ Registrar todos los cambios de stock de forma auditada.
 
 ### Reglas
 
+- La cantidad puede representarse como positiva o negativa según tipo:
+  - reserva / salidaVenta / salidaCambio → disminuyen stock
+  - liberacionReserva / ingresoCambio → aumentan stock
+
 - Contra entrega (Quito):
   - Al confirmar pedido → reserva.
   - Si se cancela o no se entrega → liberacionReserva.
@@ -159,9 +182,11 @@ Registrar todos los cambios de stock de forma auditada.
 ## 3.1 Regla de negocio
 
 El cliente puede realizar cambios dentro de 15 días.
+
 Puede cambiar por:
-- Misma referencia (otra talla)
-- Otro modelo pagando diferencia
+
+- Misma referencia (otra talla).
+- Otro modelo pagando diferencia.
 
 ---
 
@@ -197,7 +222,7 @@ Puede cambiar por:
 - Si diferenciaTotal > 0:
   - El cliente paga adicional.
 - Si diferenciaTotal < 0:
-  - Se genera saldo interno (CupónCliente).
+  - Se genera saldo interno (CuponCliente).
 - Al completar:
   - ingresoCambio para lo devuelto.
   - salidaCambio para lo entregado.
@@ -262,7 +287,7 @@ Pedido (1) —— (N) CambioPedido
 
 CambioPedido (1) —— (N) CambioPedidoItem  
 
-Cliente (0..1) —— (N) Pedido  
+Cliente (1) —— (N) Pedido  
 
 Cliente (1) —— (N) CuponCliente  
 
@@ -276,8 +301,9 @@ Pedido (0..1) —— (1) FacturaElectronica [Post-MVP]
 ✔ Contra entrega en Quito genera reserva de stock.  
 ✔ Transferencia descuenta stock al confirmar pago.  
 ✔ Se implementa MovimientoInventario para trazabilidad.  
+✔ Se almacenan snapshots de datos de entrega en Pedido.  
 ✔ Se permiten cambios de modelo con diferencia.  
-✔ Diferencias negativas generan saldo interno (CupónCliente).  
+✔ Diferencias negativas generan saldo interno (CuponCliente).  
 ✔ Facturación electrónica se modela como Post-MVP.
 
 ---
@@ -289,6 +315,7 @@ Pedido (0..1) —— (1) FacturaElectronica [Post-MVP]
 - [ ] Se reserva stock en contra entrega Quito.
 - [ ] Se descuenta stock en transferencia confirmada.
 - [ ] Se registran movimientos de inventario.
+- [ ] Se almacenan snapshots de entrega.
 - [ ] Se permiten cambios con diferencia.
 - [ ] Se generan cupones internos cuando corresponde.
 - [ ] Se pueden diferenciar estados cancelado y noEntregado.

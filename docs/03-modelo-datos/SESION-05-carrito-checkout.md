@@ -8,7 +8,7 @@ Tipo: Modelo Conceptual (sin Prisma / sin SQL)
 
 # 1. Objetivo del módulo (MVP)
 
-Permitir que un cliente:
+Permitir que un cliente autenticado:
 
 - Agregue variantes de producto al carrito.
 - Ajuste cantidades (si hay stock).
@@ -21,10 +21,13 @@ Regla crítica:
 - Si stockDisponible = 0 en una VarianteProducto, no se puede agregar al carrito ni comprar.
 
 El negocio permite:
-- Entrega a domicilio
-- Retiro en tienda
-- Pago contra entrega
-- Transferencia bancaria (incluye código DeUna)
+
+- Entrega a domicilio.
+- Retiro en tienda.
+- Pago contra entrega.
+- Transferencia bancaria (incluye código DeUna).
+
+En MVP, la compra requiere autenticación obligatoria.
 
 ---
 
@@ -35,20 +38,21 @@ El negocio permite:
 ## 2.1 Carrito
 
 ### Propósito
-Representa el carrito activo de un cliente (anónimo o autenticado).
+Representa el carrito activo de un cliente autenticado.
 
 ### Atributos MVP
+
 - id
-- identificadorSesion (para cliente anónimo)
-- clienteId (opcional, si está autenticado)
+- clienteId (obligatorio)
 - estado (activo, convertido, abandonado)
 - fechaCreacion
 - fechaActualizacion
 
 ### Reglas
-- Un cliente anónimo tiene un carrito por sesión.
-- Un cliente autenticado puede tener un carrito activo.
+
+- Un cliente puede tener un carrito activo.
 - El carrito contiene ítems (CarritoItem).
+- No existe compra anónima en MVP.
 
 ---
 
@@ -58,6 +62,7 @@ Representa el carrito activo de un cliente (anónimo o autenticado).
 Representa una línea del carrito: una VarianteProducto + cantidad.
 
 ### Atributos MVP
+
 - id
 - carritoId
 - varianteProductoId
@@ -67,10 +72,12 @@ Representa una línea del carrito: una VarianteProducto + cantidad.
 - fechaActualizacion
 
 ### Reglas
+
 - La cantidad debe ser >= 1.
 - No se permite agregar si la variante está sin stock.
 - La cantidad no debe exceder el stock disponible.
 - El precioUnitarioRegistrado se guarda para trazabilidad.
+- Antes de confirmar el proceso de compra debe validarse nuevamente el stock.
 
 ---
 
@@ -80,9 +87,10 @@ Representa una línea del carrito: una VarianteProducto + cantidad.
 Guardar los datos de entrega cuando el tipoEntrega sea domicilio.
 
 ### Atributos MVP
+
 - id
 - carritoId
-- clienteId (opcional)
+- clienteId (obligatorio)
 - nombreCompleto
 - telefono
 - provincia
@@ -95,8 +103,10 @@ Guardar los datos de entrega cuando el tipoEntrega sea domicilio.
 - fechaActualizacion
 
 ### Reglas
+
 - Solo es obligatoria cuando tipoEntrega = domicilio.
-- Puede existir aunque el cliente no esté registrado.
+- Siempre pertenece a un cliente autenticado.
+- Si tipoEntrega = retiroEnTienda, no se requiere DireccionEntrega.
 
 ---
 
@@ -106,6 +116,7 @@ Guardar los datos de entrega cuando el tipoEntrega sea domicilio.
 Representa el proceso de confirmación del carrito antes de crear un Pedido.
 
 ### Atributos MVP
+
 - id
 - carritoId
 - estado (iniciado, datosCompletados, confirmado, cancelado)
@@ -119,12 +130,13 @@ Representa el proceso de confirmación del carrito antes de crear un Pedido.
 - fechaActualizacion
 
 ### Reglas
+
 - Un carrito activo puede generar un ProcesoCompra.
 - tipoEntrega es obligatorio.
 - Si tipoEntrega = retiroEnTienda, no se requiere DireccionEntrega.
 - Si metodoPago = transferencia, puede registrarse codigoTransferencia.
-- Al confirmar, se crea un Pedido (módulo siguiente).
 - Antes de confirmar, debe validarse nuevamente el stock.
+- Al confirmar, se crea un Pedido (módulo siguiente).
 
 ---
 
@@ -138,15 +150,16 @@ Carrito (1) —— (0..1) ProcesoCompra
 
 Carrito (1) —— (0..1) DireccionEntrega  
 
-Cliente (0..1) —— (N) Carrito  
+Cliente (1) —— (N) Carrito  
 
-Cliente (0..1) —— (N) DireccionEntrega  
+Cliente (1) —— (N) DireccionEntrega  
 
 ---
 
 # 4. Decisiones Arquitectónicas Tomadas (MVP)
 
-✔ El carrito soporta clientes anónimos mediante identificadorSesion.  
+✔ En MVP la compra requiere autenticación obligatoria.  
+✔ El Carrito siempre pertenece a un Cliente.  
 ✔ CarritoItem guarda precioUnitarioRegistrado para trazabilidad.  
 ✔ tipoEntrega es obligatorio (domicilio o retiroEnTienda).  
 ✔ DireccionEntrega solo es obligatoria si tipoEntrega = domicilio.  
@@ -159,7 +172,6 @@ Cliente (0..1) —— (N) DireccionEntrega
 
 # 5. Validación MVP
 
-- [ ] Se puede crear carrito anónimo (por sesión).
 - [ ] Se puede crear carrito autenticado (por cliente).
 - [ ] Se pueden agregar variantes con cantidad.
 - [ ] No se permite agregar variantes sin stock.
@@ -169,3 +181,4 @@ Cliente (0..1) —— (N) DireccionEntrega
 - [ ] Se puede registrar codigoTransferencia.
 - [ ] Se puede confirmar el ProcesoCompra.
 - [ ] El ProcesoCompra queda listo para crear Pedido.
+- [ ] No existe flujo de compra anónima en MVP.
