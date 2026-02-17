@@ -110,9 +110,10 @@ para entender la disponibilidad real y evitar sobreventa.
 
 #### HU-AV-12 – Liberar reserva de productos
 Como administrador,
-quiero liberar la reserva de productos de un pedido,
-para que vuelvan a estar disponibles si el pedido se cancela o expira.
+quiero liberar la reserva de productos de un pedido contra entrega,
+para que vuelvan a estar disponibles si el pedido se marca como noEntregado o cancelado.
 [MVP]
+
 
 ---
 
@@ -134,11 +135,12 @@ para conocer productos, cantidades, método de entrega y datos del cliente.
 
 ---
 
-#### HU-AV-15 – Cambiar estado del pedido
+#### HU-AV-15 – Actualizar estado del pedido
 Como administrador o vendedor,
-quiero actualizar el estado de un pedido,
-para reflejar su avance en el proceso de atención.
+quiero actualizar el estado de un pedido según el flujo definido del sistema,
+para reflejar correctamente su avance (pendientePago, confirmado, preparado, despachado, listoRetiro, entregado, noEntregado o cancelado).
 [MVP]
+
 
 ---
 
@@ -186,7 +188,15 @@ para detener el proceso cuando el cliente lo solicita o no procede la compra.
 
 ---
 
-#### HU-AV-21 – Registrar solicitud de devolución
+#### HU-AV-21 – Visualizar pedidos cancelados automáticamente
+Como administrador o vendedor,
+quiero identificar los pedidos que fueron cancelados automáticamente por falta de pago en 24 horas,
+para mantener control del flujo de ventas y seguimiento operativo.
+[MVP]
+
+---
+
+#### HU-AV-22 – Registrar solicitud de devolución
 Como administrador o vendedor,
 quiero registrar una solicitud de devolución,
 para gestionar casos donde el cliente desea devolver un producto.
@@ -194,7 +204,7 @@ para gestionar casos donde el cliente desea devolver un producto.
 
 ---
 
-#### HU-AV-22 – Aprobar o rechazar devolución
+#### HU-AV-23 – Aprobar o rechazar devolución
 Como administrador,
 quiero aprobar o rechazar una devolución,
 para controlar políticas y validar el proceso.
@@ -202,7 +212,7 @@ para controlar políticas y validar el proceso.
 
 ---
 
-#### HU-AV-23 – Reingresar stock por devolución aprobada
+#### HU-AV-24 – Reingresar stock por devolución aprobada
 Como administrador o vendedor,
 quiero reingresar al inventario el stock de una devolución aprobada,
 para que el producto vuelva a estar disponible.
@@ -212,7 +222,7 @@ para que el producto vuelva a estar disponible.
 
 ### 7. Consultas y reportes básicos
 
-#### HU-AV-24 – Consultar información de clientes
+#### HU-AV-25 – Consultar información de clientes
 Como administrador o vendedor,
 quiero consultar información básica de clientes,
 para apoyar la atención y el seguimiento de pedidos.
@@ -220,7 +230,7 @@ para apoyar la atención y el seguimiento de pedidos.
 
 ---
 
-#### HU-AV-25 – Ver reporte básico de ventas
+#### HU-AV-26 – Ver reporte básico de ventas
 Como administrador,
 quiero ver un reporte básico de ventas por rango de fechas,
 para evaluar el rendimiento del negocio.
@@ -228,8 +238,22 @@ para evaluar el rendimiento del negocio.
 
 ---
 
-#### HU-AV-26 – Ver productos más vendidos
+#### HU-AV-27 – Ver productos más vendidos
 Como administrador,
 quiero ver los productos más vendidos,
 para tomar decisiones de compra y reposición de inventario.
+[MVP]
+
+#### HU-AV-28 – Confirmar pago por transferencia
+Como administrador o vendedor,
+quiero confirmar manualmente el pago de un pedido realizado por transferencia bancaria,
+para descontar el stock y continuar el procesamiento del pedido.
+[MVP]
+
+---
+
+#### HU-AV-29 – Marcar pedido como “No entregado”
+Como administrador o vendedor,
+quiero marcar un pedido como no entregado cuando la contra entrega no se complete,
+para liberar la reserva y devolver el stock a disponibilidad.
 [MVP]

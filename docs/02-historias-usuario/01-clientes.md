@@ -128,52 +128,82 @@ para elegir la forma que más me convenga al recibir mi compra.
 
 ---
 
-### HU-CL-16 – Reservar productos al confirmar pedido
+### HU-CL-16 – Ver resumen del pedido
 Como cliente autenticado,
-quiero que el sistema reserve los productos de mi pedido al confirmar la compra,
-para asegurar su disponibilidad según el método de pago seleccionado.
+quiero ver un resumen final de mi pedido,
+para confirmar productos, cantidades, método de entrega y método de pago antes de confirmar la compra.
 [MVP]
-
 
 ---
 
-### HU-CL-17 – Ver resumen del pedido
+### HU-CL-17 – Seleccionar método de pago
 Como cliente autenticado,
-quiero ver un resumen final de mi pedido,
-para confirmar productos, cantidades, método de entrega y total antes de pagar.
+quiero seleccionar un método de pago (transferencia bancaria o contra entrega en Quito),
+para definir cómo se procesará mi pedido.
 [MVP]
+
 
 ---
 
 ### HU-CL-18 – Confirmar pedido
 Como cliente autenticado,
 quiero confirmar mi pedido,
-para proceder al pago de mi compra.
+para que el sistema registre la compra y aplique las reglas de inventario correspondientes.
 [MVP]
+
+---
 
 ### 5. Pago
 
-### HU-CL-19 – Seleccionar método de pago
+### HU-CL-19 – Enviar comprobante de pago por transferencia
 Como cliente autenticado,
-quiero seleccionar un método de pago disponible,
-para completar la compra de mi pedido.
+quiero enviar el comprobante de mi transferencia bancaria (incluyendo código DeUna si aplica),
+para que el negocio pueda confirmar el pago y procesar mi pedido.
 [MVP]
 
 ---
 
-### HU-CL-20 – Realizar pago (simulado)
+### HU-CL-20 – Ver estado del pedido y del pago
 Como cliente autenticado,
-quiero realizar el pago de forma simulada,
-para finalizar el proceso de compra.
+quiero visualizar el estado de mi pedido (pendientePago, confirmado, entregado, noEntregado, cancelado o canceladoAutomatico),
+para saber en qué etapa se encuentra mi compra.
 [MVP]
 
 ---
 
-### HU-CL-21 – Ver confirmación de compra
+### HU-CL-21 – Ver estado del pedido y del pago
 Como cliente autenticado,
-quiero ver una confirmación de mi compra,
-para saber que el pedido se realizó correctamente.
+quiero visualizar el estado de mi pedido (pendiente de pago, confirmado, entregado, no entregado o cancelado),
+para saber en qué etapa se encuentra mi compra.
 [MVP]
+
+### Reglas de pago y expiración (MVP)
+
+Método de pago: Transferencia bancaria
+
+- El pedido se crea en estado pendientePago.
+- El stock NO se descuenta hasta que el pago sea confirmado manualmente.
+- El cliente dispone de un máximo de 24 horas para enviar y confirmar el pago.
+- Si el pago no es confirmado dentro de ese plazo, el sistema cambia
+  automáticamente el estado del pedido a canceladoAutomatico.
+- No se descuenta stock si el pago no fue confirmado.
+
+Método de pago: Contra entrega (Quito)
+
+- El pedido se confirma inmediatamente al ser creado.
+- El stock se reserva al confirmar el pedido.
+- El estado evoluciona hasta entregado o noEntregado.
+- Si el pedido no se entrega, la reserva se libera y el stock vuelve a estar 
+  disponible.
+
+Justificación
+
+- Evita acumulación de pedidos impagos.
+- Mantiene inventario disponible.
+- Replica el flujo real del negocio.
+- Simplifica el modelo conceptual.
+- Mantiene coherencia entre Fase 2 y Fase 3.
+
 
 ---
 
