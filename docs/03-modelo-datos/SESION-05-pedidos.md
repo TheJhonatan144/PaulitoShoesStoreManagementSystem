@@ -45,7 +45,8 @@ Representar una venta generada desde un ProcesoCompra confirmado.
   enviado,
   entregado,
   cancelado,
-  noEntregado
+  noEntregado,
+  canceladoAutomatico
 )
 - subtotal
 - costoEnvio
@@ -86,9 +87,10 @@ Representar una venta generada desde un ProcesoCompra confirmado.
    - Al confirmar el pedido:
      - Se RESERVA el stock (se descuenta stockDisponible).
      - Se crea MovimientoInventario tipo reserva.
-     - El estado pasa a reservado o preparado.
-   - Si el pedido se cancela o no se entrega:
+     - El estado pasa a reservado.
+   - Si el pedido pasa a estado cancelado o noEntregado:
      - Se crea MovimientoInventario tipo liberacionReserva.
+
 
 4. Transferencia bancaria:
    - El stock se descuenta cuando el pago es confirmado.
@@ -106,6 +108,24 @@ Representar una venta generada desde un ProcesoCompra confirmado.
 7. Al crear el Pedido:
    - El ProcesoCompra pasa a estado confirmado.
    - No puede reutilizarse.
+
+8. Expiración automática de pago (solo transferencia):
+
+   - Si metodoPago = transferencia, el Pedido inicia en estado pendientePago.
+   - El cliente dispone de un plazo máximo de 24 horas desde fechaCreacion para confirmar el pago.
+   - Si el pago no es confirmado dentro de ese plazo:
+     - El estado del Pedido cambia automáticamente a canceladoAutomatico.
+   - Esta expiración no requiere liberar inventario,
+     ya que en transferencia no se reserva ni descuenta stock
+     hasta que el pago es confirmado.
+
+Nota:
+
+En el caso de contraEntrega (Quito),
+la reserva ya descuenta stockDisponible al confirmar el Pedido.
+La transición a estado entregado no modifica inventario,
+solo finaliza el ciclo operativo del Pedido.
+
 
 ---
 
