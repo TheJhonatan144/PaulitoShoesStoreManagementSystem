@@ -13,7 +13,7 @@ y preparar validaciones en backend.
 
 ---
 
-# 2. ENUMs oficiales (MVP)
+# 2. ENUMs oficiales (MVP y Post-MVP)
 
 ## 2.1 EstadoProducto
 - borrador
@@ -62,6 +62,7 @@ pendientePago -> pagadoConfirmado -> preparado -> enviado -> entregado
 Reglas:
 - Si pasan 24h sin confirmación: pendientePago -> canceladoAutomatico
 - Si se cancela manualmente: pendientePago -> cancelado
+- Al confirmar el pedido con transferencia: estado inicial pendientePago.
 
 ## 3.2 Contra entrega (solo Quito)
 reservado -> preparado -> enviado -> entregado
@@ -70,6 +71,18 @@ Reglas:
 - Al confirmar pedido (contraEntrega Quito): estado inicial reservado
 - Si no se entrega: reservado/preparado/enviado -> noEntregado
 - Si se cancela antes de entregar: reservado/preparado -> cancelado
+
+Nota (retiro en tienda):
+En MVP no se incluye un estado separado "listoRetiro".      
+Para pedidos con tipoEntrega = retiroEnTienda, el estado "preparado" significa
+"listo para retiro".
+
+Nota (confirmación):
+En MVP no se utiliza un estado genérico "confirmado".       
+La confirmación se representa con estados específicos según método de pago:
+
+- contraEntrega (Quito): reservado
+- transferencia: pagadoConfirmado
 
 ---
 
@@ -94,6 +107,8 @@ Atributos lógicos:
 Reglas:
 - Cada cambio de estado debe crear un registro en historial.
 - Cambios automáticos (canceladoAutomatico) se registran con actorTipo = sistema.
+- actorId es obligatorio solo cuando actorTipo = admin o vendedor.
+- Si actorTipo = sistema, actorId debe ser NULL.
 
 ---
 
