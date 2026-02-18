@@ -54,6 +54,7 @@ Recomendación:
 ## 5.2 Transferencia
 - pendientePago: no toca stock
 - pagadoConfirmado: salidaVenta
+- Si canceladoAutomatico o cancelado en pendientePago: no hay movimientos de inventario.
 
 ---
 
@@ -63,3 +64,35 @@ Recomendación:
   - No se permite agregar al carrito ni comprar
   - Se muestra “sin stock”
   - Se permite registrar InteresStock (único por cliente)
+
+---
+
+# 7. Reglas de concurrencia y consistencia (MVP)
+
+1) El carrito NO bloquea inventario.
+- Se valida stock al agregar al carrito (validación suave).
+- La validación final y definitiva ocurre al confirmar el Pedido (validación fuerte).
+
+2) Transferencia (metodoPago = transferencia)
+- El Pedido inicia en estado pendientePago.
+- No se reserva ni descuenta inventario en pendientePago.
+- Solo al confirmar pago:
+  - se registra MovimientoInventario tipo salidaVenta
+  - el Pedido pasa a pagadoConfirmado
+- Si pasan 24 horas sin pago:
+  - Pedido -> canceladoAutomatico
+  - no se libera inventario (porque no se tocó stock).
+
+3) Contra entrega Quito (metodoPago = contraEntrega)
+- Al confirmar Pedido:
+  - se registra MovimientoInventario tipo reserva (disminuye stockDisponible)
+  - el Pedido inicia en estado reservado
+- Si el Pedido pasa a cancelado o noEntregado:
+  - se registra MovimientoInventario tipo liberacionReserva (aumenta stockDisponible)
+- Al marcar entregado:
+  - solo cambia el estado, no modifica inventario (ya estaba reservado).
+
+4) Regla de fallo por stock insuficiente
+- Si al confirmar Pedido el stockDisponible no alcanza:
+  - la confirmación debe fallar (no se crea Pedido / o se revierte la operación)
+  - inventario nunca puede quedar negativo.

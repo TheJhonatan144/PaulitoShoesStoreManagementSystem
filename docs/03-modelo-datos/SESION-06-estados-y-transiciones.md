@@ -62,7 +62,7 @@ pendientePago -> pagadoConfirmado -> preparado -> enviado -> entregado
 Reglas:
 - Si pasan 24h sin confirmación: pendientePago -> canceladoAutomatico
 - Si se cancela manualmente: pendientePago -> cancelado
-- Al confirmar el pedido con transferencia: estado inicial pendientePago.
+- Al crear el Pedido con transferencia: estado inicial pendientePago.
 
 ## 3.2 Contra entrega (solo Quito)
 reservado -> preparado -> enviado -> entregado
@@ -83,6 +83,11 @@ La confirmación se representa con estados específicos según método de pago:
 
 - contraEntrega (Quito): reservado
 - transferencia: pagadoConfirmado
+
+Nota (concurrencia):
+El stock se valida de forma definitiva al confirmar el Pedido.
+Si no existe stock suficiente en ese momento, la confirmación falla y no se permite crear el Pedido.
+
 
 ---
 

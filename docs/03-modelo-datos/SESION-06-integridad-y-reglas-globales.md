@@ -18,7 +18,13 @@ integridad referencial, unicidad, consistencia y auditoría mínima.
 - No se debe permitir PedidoItem sin Pedido.
 - No se debe permitir PedidoItem sin VarianteProducto.
 - No se debe permitir CarritoItem sin Carrito.
-- ProcesoCompra pertenece a un Carrito y se convierte en Pedido (1 a 1).
+- ProcesoCompra pertenece a un Carrito y genera un Pedido (1 a 1).
+- stockDisponible nunca puede ser negativo.
+- stockDisponible solo se modifica mediante MovimientoInventario (incluye ajustes manuales con tipo = ajuste).
+- Un cambio completado siempre genera dos movimientos:
+  - ingresoCambio (variante devuelta)
+  - salidaCambio (variante entregada)
+
 
 ---
 
@@ -31,6 +37,7 @@ integridad referencial, unicidad, consistencia y auditoría mínima.
 - El Cliente se identifica por correo único.
 - El teléfono se exige cuando tipoEntrega = domicilio o cuando el flujo requiere coordinación de entrega (checkout).
 - La dirección de entrega no se utiliza como "dirección guardada": se almacena como snapshot en Pedido.
+- Cliente.email es único y obligatorio.
 
 ---
 
