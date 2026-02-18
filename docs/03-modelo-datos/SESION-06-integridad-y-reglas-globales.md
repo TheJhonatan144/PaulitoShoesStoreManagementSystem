@@ -28,6 +28,9 @@ integridad referencial, unicidad, consistencia y auditoría mínima.
 - ProcesoCompra confirmado no se reutiliza.
 - Precio y datos críticos deben quedar como snapshot en Pedido/PedidoItem.
 - InteresStock solo se crea si stockDisponible = 0.
+- El Cliente se identifica por correo único.
+- El teléfono se exige cuando tipoEntrega = domicilio o cuando el flujo requiere coordinación de entrega (checkout).
+- La dirección de entrega no se utiliza como "dirección guardada": se almacena como snapshot en Pedido.
 
 ---
 
