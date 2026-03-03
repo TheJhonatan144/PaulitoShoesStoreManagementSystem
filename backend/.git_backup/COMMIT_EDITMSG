@@ -1,0 +1,8 @@
+feat(backend): inicializar NestJS + Prisma (Sesión 7)
+
+Se crea el backend con NestJS y se integra Prisma:
+
+- schema.prisma basado en modelo lógico (Sesión 6)
+- migración inicial aplicada (init_modelo_datos)
+- configuración de entorno con .env.example
+- .env ignorado por seguridad

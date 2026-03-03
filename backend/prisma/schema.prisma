@@ -1,0 +1,477 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * =========================
+ * ENUMS (Sesión 6)
+ * =========================
+ */
+
+enum EstadoProducto {
+  borrador
+  activo
+  archivado
+}
+
+enum EstadoVarianteProducto {
+  activo
+  inactivo
+  descontinuado
+}
+
+enum MetodoPago {
+  transferencia
+  contraEntrega
+  // Post-MVP: tarjeta (pasarela)
+}
+
+enum TipoEntrega {
+  domicilio
+  retiroEnTienda
+}
+
+enum EstadoPedido {
+  pendientePago
+  reservado
+  pagadoConfirmado
+  preparado
+  enviado
+  entregado
+  cancelado
+  noEntregado
+  canceladoAutomatico
+}
+
+enum TipoMovimientoInventario {
+  reserva
+  liberacionReserva
+  salidaVenta
+  ingresoCambio
+  salidaCambio
+  ajuste
+}
+
+enum ReferenciaMovimientoInventario {
+  pedido
+  cambio
+  ajusteManual
+}
+
+enum EstadoCambioPedido {
+  solicitado
+  aprobado
+  completado
+  rechazado
+}
+
+enum EstadoCuponCliente {
+  activo
+  utilizado
+  vencido
+}
+
+enum ActorTipoEstadoPedido {
+  admin
+  vendedor
+  sistema
+}
+
+enum EstadoCarrito {
+  activo
+  convertido
+  abandonado
+}
+
+enum EstadoProcesoCompra {
+  iniciado
+  datosCompletados
+  confirmado
+  cancelado
+}
+
+/**
+ * =========================
+ * USUARIOS (MVP)
+ * =========================
+ */
+
+model Cliente {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  passwordHash       String
+  nombreCompleto     String?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  carritos           Carrito[]
+  direccionesEntrega DireccionEntrega[]
+  pedidos            Pedido[]
+  cupones            CuponCliente[]
+  interesesStock     InteresStock[]
+
+  @@index([email])
+}
+
+/**
+ * =========================
+ * CATÁLOGO (MVP)
+ * =========================
+ */
+
+model Marca {
+  id                 String   @id @default(cuid())
+  nombre             String   @unique
+  estado             String   @default("activa")
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  productos Producto[]
+}
+
+model Categoria {
+  id                 String   @id @default(cuid())
+  nombre             String   @unique
+  descripcion        String?
+  estado             String   @default("activa")
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  productos Producto[]
+}
+
+model Producto {
+  id                 String         @id @default(cuid())
+  nombre             String
+  descripcion        String
+  marcaId            String
+  categoriaId        String
+  grupoObjetivo      String // niño/niña/hombre/mujer/unisex (texto)
+  estado             EstadoProducto @default(borrador)
+  notaPrecioBase     String?
+  fechaCreacion      DateTime       @default(now())
+  fechaActualizacion DateTime       @updatedAt
+
+  marca     Marca              @relation(fields: [marcaId], references: [id])
+  categoria Categoria          @relation(fields: [categoriaId], references: [id])
+  variantes VarianteProducto[]
+
+  @@index([marcaId])
+  @@index([categoriaId])
+}
+
+model VarianteProducto {
+  id                 String                 @id @default(cuid())
+  productoId         String
+  talla              Int
+  color              String // texto libre
+  tipoSerie          String // pequeña/mediana/grande (texto)
+  precio             Decimal                @db.Decimal(10, 2)
+  stockDisponible    Int
+  codigoInterno      String                 @unique
+  estado             EstadoVarianteProducto @default(activo)
+  notaVariante       String?
+  fechaCreacion      DateTime               @default(now())
+  fechaActualizacion DateTime               @updatedAt
+
+  producto       Producto               @relation(fields: [productoId], references: [id])
+  carritoItems   CarritoItem[]
+  pedidoItems    PedidoItem[]
+  movimientos    MovimientoInventario[]
+  interesesStock InteresStock[]
+
+  @@unique([productoId, talla, color])
+  @@index([productoId])
+  @@index([stockDisponible])
+}
+
+/**
+ * =========================
+ * INTERÉS DE REPOSICIÓN (MVP+)
+ * =========================
+ */
+
+model InteresStock {
+  id                 String   @id @default(cuid())
+  varianteProductoId String
+  clienteId          String
+  fechaCreacion      DateTime @default(now())
+
+  varianteProducto VarianteProducto @relation(fields: [varianteProductoId], references: [id])
+  cliente          Cliente          @relation(fields: [clienteId], references: [id])
+
+  @@unique([varianteProductoId, clienteId])
+  @@index([clienteId])
+}
+
+/**
+ * =========================
+ * CARRITO + PROCESO COMPRA (MVP)
+ * =========================
+ */
+
+model Carrito {
+  id                 String        @id @default(cuid())
+  clienteId          String
+  estado             EstadoCarrito @default(activo)
+  fechaCreacion      DateTime      @default(now())
+  fechaActualizacion DateTime      @updatedAt
+
+  cliente          Cliente           @relation(fields: [clienteId], references: [id])
+  items            CarritoItem[]
+  direccionEntrega DireccionEntrega?
+  procesoCompra    ProcesoCompra?
+
+  @@index([clienteId])
+}
+
+model CarritoItem {
+  id                       String   @id @default(cuid())
+  carritoId                String
+  varianteProductoId       String
+  cantidad                 Int
+  precioUnitarioRegistrado Decimal  @db.Decimal(10, 2)
+  fechaCreacion            DateTime @default(now())
+  fechaActualizacion       DateTime @updatedAt
+
+  carrito          Carrito          @relation(fields: [carritoId], references: [id])
+  varianteProducto VarianteProducto @relation(fields: [varianteProductoId], references: [id])
+
+  @@index([carritoId])
+  @@index([varianteProductoId])
+}
+
+model DireccionEntrega {
+  id                 String   @id @default(cuid())
+  carritoId          String   @unique
+  clienteId          String
+  nombreCompleto     String
+  telefono           String
+  provincia          String
+  ciudad             String
+  direccionLinea1    String
+  direccionLinea2    String?
+  referencia         String?
+  notasEntrega       String?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  carrito Carrito @relation(fields: [carritoId], references: [id])
+  cliente Cliente @relation(fields: [clienteId], references: [id])
+
+  @@index([clienteId])
+}
+
+model ProcesoCompra {
+  id                  String              @id @default(cuid())
+  carritoId           String              @unique
+  estado              EstadoProcesoCompra @default(iniciado)
+  subtotal            Decimal             @db.Decimal(10, 2)
+  costoEnvio          Decimal             @db.Decimal(10, 2)
+  total               Decimal             @db.Decimal(10, 2)
+  metodoPago          MetodoPago
+  tipoEntrega         TipoEntrega
+  codigoTransferencia String?
+  fechaCreacion       DateTime            @default(now())
+  fechaActualizacion  DateTime            @updatedAt
+
+  carrito Carrito @relation(fields: [carritoId], references: [id])
+  pedido  Pedido?
+
+  @@index([metodoPago])
+  @@index([tipoEntrega])
+}
+
+/**
+ * =========================
+ * PEDIDOS + INVENTARIO (MVP)
+ * =========================
+ */
+
+model Pedido {
+  id              String       @id @default(cuid())
+  numeroPedido    String       @unique
+  clienteId       String
+  procesoCompraId String       @unique
+  estado          EstadoPedido
+  subtotal        Decimal      @db.Decimal(10, 2)
+  costoEnvio      Decimal      @db.Decimal(10, 2)
+  total           Decimal      @db.Decimal(10, 2)
+  metodoPago      MetodoPago
+  tipoEntrega     TipoEntrega
+
+  // Snapshot entrega (desde DireccionEntrega)
+  nombreCompletoEntrega  String?
+  telefonoEntrega        String?
+  provinciaEntrega       String?
+  ciudadEntrega          String?
+  direccionLinea1Entrega String?
+  direccionLinea2Entrega String?
+  referenciaEntrega      String?
+
+  // Control pago
+  codigoTransferencia String?
+  fechaReserva        DateTime?
+  fechaPagoConfirmado DateTime?
+  fechaEntregado      DateTime?
+
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  cliente       Cliente       @relation(fields: [clienteId], references: [id])
+  procesoCompra ProcesoCompra @relation(fields: [procesoCompraId], references: [id])
+
+  items              PedidoItem[]
+  movimientos        MovimientoInventario[]
+  cambios            CambioPedido[]
+  cuponesGenerados   CuponCliente[]          @relation("CuponGeneradoPorPedido")
+  historialEstados   PedidoEstadoHistorial[]
+  facturaElectronica FacturaElectronica?
+
+  @@index([clienteId])
+  @@index([estado])
+  @@index([metodoPago])
+  @@index([tipoEntrega])
+}
+
+model PedidoItem {
+  id                 String @id @default(cuid())
+  pedidoId           String
+  varianteProductoId String
+
+  // Snapshot del producto
+  nombreProductoRegistrado String
+  tallaRegistrada          Int
+  colorRegistrado          String
+  codigoInternoRegistrado  String
+
+  cantidad                 Int
+  precioUnitarioRegistrado Decimal @db.Decimal(10, 2)
+  subtotalLinea            Decimal @db.Decimal(10, 2)
+
+  pedido           Pedido           @relation(fields: [pedidoId], references: [id])
+  varianteProducto VarianteProducto @relation(fields: [varianteProductoId], references: [id])
+
+  @@index([pedidoId])
+  @@index([varianteProductoId])
+}
+
+model MovimientoInventario {
+  id                 String                         @id @default(cuid())
+  varianteProductoId String
+  tipo               TipoMovimientoInventario
+  cantidad           Int
+  referenciaTipo     ReferenciaMovimientoInventario
+  pedidoId           String?
+  cambioPedidoId     String?
+  nota               String?
+  fechaCreacion      DateTime                       @default(now())
+
+  varianteProducto VarianteProducto @relation(fields: [varianteProductoId], references: [id])
+  pedido           Pedido?          @relation(fields: [pedidoId], references: [id])
+  cambioPedido     CambioPedido?    @relation(fields: [cambioPedidoId], references: [id])
+
+  @@index([varianteProductoId])
+  @@index([referenciaTipo])
+  @@index([pedidoId])
+  @@index([cambioPedidoId])
+}
+
+/**
+ * =========================
+ * HISTORIAL DE ESTADOS (MVP)
+ * =========================
+ */
+
+model PedidoEstadoHistorial {
+  id             String                @id @default(cuid())
+  pedidoId       String
+  estadoAnterior EstadoPedido?
+  estadoNuevo    EstadoPedido
+  actorTipo      ActorTipoEstadoPedido
+  actorId        String?
+  nota           String?
+  fechaCreacion  DateTime              @default(now())
+
+  pedido Pedido @relation(fields: [pedidoId], references: [id])
+
+  @@index([pedidoId])
+  @@index([actorTipo])
+}
+
+/**
+ * =========================
+ * CAMBIOS + CUPONES (MVP+)
+ * =========================
+ */
+
+model CambioPedido {
+  id              String             @id @default(cuid())
+  pedidoId        String
+  estado          EstadoCambioPedido @default(solicitado)
+  motivo          String?
+  fechaSolicitud  DateTime           @default(now())
+  fechaCompletado DateTime?
+
+  pedido      Pedido                 @relation(fields: [pedidoId], references: [id])
+  items       CambioPedidoItem[]
+  movimientos MovimientoInventario[]
+
+  @@index([pedidoId])
+}
+
+model CambioPedidoItem {
+  id                  String   @id @default(cuid())
+  cambioPedidoId      String
+  varianteDevueltaId  String
+  varianteEntregadaId String
+  cantidad            Int
+  diferenciaTotal     Decimal? @db.Decimal(10, 2)
+  metodoAjuste        String? // efectivo/transferencia/saldoInterno
+  nota                String?
+
+  cambioPedido CambioPedido @relation(fields: [cambioPedidoId], references: [id])
+
+  @@index([cambioPedidoId])
+}
+
+model CuponCliente {
+  id               String             @id @default(cuid())
+  clienteId        String
+  pedidoOrigenId   String? // opcional: si proviene de un cambio
+  montoDisponible  Decimal            @db.Decimal(10, 2)
+  estado           EstadoCuponCliente @default(activo)
+  fechaCreacion    DateTime           @default(now())
+  fechaVencimiento DateTime?
+
+  cliente      Cliente @relation(fields: [clienteId], references: [id])
+  pedidoOrigen Pedido? @relation("CuponGeneradoPorPedido", fields: [pedidoOrigenId], references: [id])
+
+  @@index([clienteId])
+  @@index([pedidoOrigenId])
+}
+
+/**
+ * =========================
+ * FACTURA ELECTRÓNICA (Post-MVP)
+ * =========================
+ */
+
+model FacturaElectronica {
+  id                      String    @id @default(cuid())
+  pedidoId                String    @unique
+  tipoComprobante         String
+  identificacionComprador String
+  emailEnvio              String
+  claveAccesoSRI          String?
+  estado                  String // generada/firmada/enviada/autorizada/rechazada
+  fechaEmision            DateTime  @default(now())
+  fechaAutorizacion       DateTime?
+
+  pedido Pedido @relation(fields: [pedidoId], references: [id])
+}
