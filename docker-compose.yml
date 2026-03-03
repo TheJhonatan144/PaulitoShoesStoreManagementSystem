@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: paulito_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: paulito
+      POSTGRES_PASSWORD: paulito123
+      POSTGRES_DB: paulito_shoes
+    ports:
+      - "5432:5432"
+    volumes:
+      - paulito_pgdata:/var/lib/postgresql/data
+
+volumes:
+  paulito_pgdata:
