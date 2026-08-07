@@ -7,7 +7,7 @@
 | Fase | 5 — Diseño de API |
 | Sesión | 9 |
 | Tema | Definición de endpoints REST |
-| Estado | En progreso |
+| Estado | Completada |
 | Versión del documento | 1.0 |
 | Ruta base | `/api/v1` |
 
@@ -3527,7 +3527,7 @@ Estas brechas no invalidan el contrato diseñado. Representan tareas técnicas n
 - [x] Documentar reglas de negocio relevantes.
 - [x] Crear trazabilidad con historias de usuario.
 - [x] Identificar brechas antes de implementación.
-- [ ] Traducir el contrato inicial a OpenAPI.
-- [ ] Validar sintaxis del archivo OpenAPI.
-- [ ] Realizar revisión final de consistencia.
-- [ ] Registrar commits de cierre.
+- [x] Traducir el contrato inicial a OpenAPI.
+- [x] Validar sintaxis del archivo OpenAPI.
+- [x] Realizar revisión final de consistencia.
+- [x] Registrar commits de cierre.
