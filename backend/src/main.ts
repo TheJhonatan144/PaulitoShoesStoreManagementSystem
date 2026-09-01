@@ -1,30 +1,29 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { PrismaService } from './prisma/prisma.service';
+import { configureHttpApplication } from './app.setup';
 
-async function bootstrap() {
+const bootstrapLogger = new Logger('Bootstrap');
+
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const appName = configService.getOrThrow<string>('app.name');
+  const port = configService.getOrThrow<number>('app.port');
 
-  app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-    credentials: true,
-  });
+  configureHttpApplication(app);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.enableShutdownHooks();
 
-  const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
-
-  const port = process.env.PORT || 3000;
   await app.listen(port);
 
-  console.log(`Paulito Shoes API running on port ${port}`);
+  bootstrapLogger.log(`${appName} running on port ${port}`);
 }
-bootstrap();
+
+bootstrap().catch((error: unknown) => {
+  const trace = error instanceof Error ? error.stack : undefined;
+
+  bootstrapLogger.error('Failed to start the application', trace);
+  process.exitCode = 1;
+});
