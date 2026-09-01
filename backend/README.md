@@ -1,98 +1,178 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend de Paulito Shoes Store
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST del sistema Paulito Shoes Store Management System, construida con
+NestJS, Prisma y PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Requisitos
 
-## Description
+- Node.js `>=24 <25`
+- npm `>=11`
+- Docker Desktop con motor WSL2 e integración habilitada para Ubuntu
+- Docker Compose
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+Si utilizas `nvm`, selecciona la versión declarada por el proyecto:
 
 ```bash
-$ npm install
+nvm install
+nvm use
 ```
 
-## Compile and run the project
+## Instalación
+
+Desde la raíz del repositorio, inicia PostgreSQL:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker compose up -d db
+docker compose ps
 ```
 
-## Run tests
+Instala las dependencias:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cd backend
+npm ci
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Crea la configuración local:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Genera dos secretos diferentes y copia uno en `JWT_ACCESS_SECRET` y el otro en
+`JWT_REFRESH_SECRET`:
 
-## Resources
+```bash
+openssl rand -hex 32
+openssl rand -hex 32
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+El archivo `.env` es local, está ignorado por Git y nunca debe contener secretos
+compartidos en el repositorio.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Aplica las migraciones existentes:
 
-## Support
+```bash
+npx prisma migrate deploy
+npx prisma migrate status
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Variables de entorno
 
-## Stay in touch
+| Variable | Requerida | Valor local predeterminado o ejemplo |
+|---|:---:|---|
+| `NODE_ENV` | No | `development` |
+| `PORT` | No | `3000` |
+| `APP_NAME` | No | `Paulito Shoes API` |
+| `APP_VERSION` | No | `1.0.0` |
+| `CORS_ORIGIN` | No | `http://localhost:5173` |
+| `DATABASE_URL` | Sí | URL PostgreSQL definida en `.env.example` |
+| `JWT_ACCESS_SECRET` | Sí | Secreto local de al menos 32 caracteres |
+| `JWT_ACCESS_EXPIRES_IN` | No | `15m` |
+| `JWT_REFRESH_SECRET` | Sí | Secreto local diferente, mínimo 32 caracteres |
+| `JWT_REFRESH_EXPIRES_IN` | No | `7d` |
+| `BCRYPT_ROUNDS` | No | `12`, permitido entre 10 y 14 |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+La aplicación valida estas variables al iniciar y falla tempranamente si alguna
+configuración obligatoria es inválida.
 
-## License
+## Ejecución
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+# Desarrollo con recarga
+npm run start:dev
+
+# Ejecución normal
+npm run start
+
+# Compilar y ejecutar la salida
+npm run build
+npm run start:prod
+```
+
+La ruta base de los módulos funcionales es:
+
+```text
+http://localhost:3000/api/v1
+```
+
+Los health checks permanecen fuera del prefijo:
+
+```text
+GET /health
+GET /health/live
+GET /health/ready
+```
+
+`/health/live` solo verifica el proceso. `/health` y `/health/ready` también
+consultan PostgreSQL.
+
+## Calidad y pruebas
+
+```bash
+# Comprobar formato sin modificar archivos
+npm run format:check
+
+# Aplicar formato
+npm run format
+
+# Comprobar lint
+npm run lint
+
+# Corregir problemas compatibles de lint
+npm run lint:fix
+
+# Pruebas unitarias
+npm test -- --runInBand
+
+# Pruebas e2e aisladas de infraestructura
+npm run test:e2e -- --runInBand
+
+# Validar el esquema Prisma
+npx prisma validate
+```
+
+Las pruebas e2e reemplazan `PrismaService` por un mock controlado. La conexión
+real puede verificarse con `npx prisma migrate status` y los health checks con el
+contenedor PostgreSQL activo.
+
+## Base técnica
+
+La aplicación configura globalmente:
+
+- prefijo `/api/v1` con exclusiones de salud;
+- `ValidationPipe` con whitelist, rechazo de propiedades desconocidas y
+  transformación;
+- filtro uniforme de excepciones;
+- identificador `requestId` para errores;
+- CORS con credenciales;
+- Helmet;
+- configuración validada con Joi;
+- conexión y desconexión de Prisma mediante el ciclo de vida de Nest.
+
+## Estructura de `src`
+
+```text
+src/
+├── common/       componentes transversales HTTP
+├── config/       configuración y validación del entorno
+├── modules/      módulos del dominio
+├── prisma/       integración global con Prisma
+├── app.module.ts
+├── app.setup.ts
+└── main.ts
+```
+
+## Detener el entorno local
+
+Desde la raíz del repositorio:
+
+```bash
+docker compose stop db
+```
+
+Para detener y eliminar el contenedor sin borrar el volumen persistente:
+
+```bash
+docker compose down
+```
